@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/spfx-serve.schema.json",
+  "port": 4321,
+  "https": true,
+  /* OS environment variable SPFX_SERVE_TENANT_DOMAIN => tenantDomain
+   * da cmd: set SPFX_SERVE_TENANT_DOMAIN=sgart.sharepoint.com
+   * da powershell: $env:SPFX_SERVE_TENANT_DOMAIN=sgart.sharepoint.com
+   * initialPage": "https://{tenantDomain}/_layouts/workbench.aspx" 
+   */
+  "initialPage": "https://{tenantDomain}/sites/CorsoSPFX/_layouts/workbench.aspx"
+}

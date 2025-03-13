@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "sgart-spfx-base-template-client-side-solution",
+    "id": "322d7988-b46c-4eaa-8418-5cde782b061d",
+    "version": "2.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.19.0"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "sgart-spfx-base-template description"
+      },
+      "longDescription": {
+        "default": "sgart-spfx-base-template description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "sgart-spfx-base-template Feature",
+        "description": "The feature that activates elements of the sgart-spfx-base-template solution.",
+        "id": "8c3e0434-17f8-4913-aecb-1402021cf59b",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/sgart-spfx-base-template.sppkg"
+  }
+}
