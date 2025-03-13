@@ -4,10 +4,6 @@
 
 Esempio di progetto SPFX da utilizzare come template realizzato con **React functional components**.
 
-TODO:
-- npm install
-- nvm use
-
 ## List
 
 Per funzionare richiede una  lista SharePoint di nome **Tasks** con i seguenti campi
