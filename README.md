@@ -4,6 +4,7 @@
 
 Esempio di progetto SPFX da utilizzare come template realizzato con **React functional components**.
 
+
 ## List
 
 Per funzionare richiede una  lista SharePoint di nome **Tasks** con i seguenti campi
