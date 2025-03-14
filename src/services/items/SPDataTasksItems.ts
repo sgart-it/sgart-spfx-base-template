@@ -1,11 +1,10 @@
-import { SPDataBase } from "../SPDataBase";
+import { ServiceScope } from "@microsoft/sp-core-library";
+import { SPDataBase } from "../base/SPDataBase";
 import { stringIsNullOrEmpty } from "@pnp/core";
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/items";
 import { TaskItem } from "../../dto/TaskItem";
-import { SPFI } from "@pnp/sp";
-import { GraphFI } from "@pnp/graph";
 
 const mapFromTaskItem = (item: TaskItem): Record<string, unknown> => ({
     Title: item.title,
@@ -42,20 +41,10 @@ const FIELDS = ["Id", "Title", "ProjectName", "Completed", "Modified"];
 
 export class SPDataTasksItems extends SPDataBase {
 
-    private _listName: string;
+    constructor(serviceScope: ServiceScope, private listName: string) {
+        super(serviceScope);
 
-    constructor(sp: SPFI, graph: GraphFI, listName: string) {
-        super(sp, graph);
-
-        this._listName = listName;
-        console.log(`${LOG_SOURCE}: listName '${this._listName}'`);
-    }
-
-    private getListName(): string {
-        if (stringIsNullOrEmpty(this._listName))
-            throw new Error("Listname is null");
-
-        return this._listName;
+        console.log(`${LOG_SOURCE}: listName '${this.listName}'`);
     }
 
     /**
@@ -66,17 +55,16 @@ export class SPDataTasksItems extends SPDataBase {
      */
     public async gets(text: string): Promise<TaskItem[]> {
         console.log(`${LOG_SOURCE}: gets filter  with'${text}'`);
-        const listName = this.getListName();
 
         // prepare filter
-        const dataFilter = this._sp.web.lists.getByTitle(listName)
+        const dataFilter = this.getListByTitle(this.listName)
             .items
             .top(5000)
             //.filter(`startswith(Title,'${text ?? ''}')`)
             .select(...FIELDS)
             //select("Title", "FileRef", "FieldValuesAsText/MetaInfo")
             //.expand("FieldValuesAsText")
-            .orderBy("Id");
+            .orderBy("Id", true);
         if (stringIsNullOrEmpty(text) === false) {
             //dataFilter.filter(f => f.text("Title").startsWith(text ?? ''));
             // funziona solo con liste con meno di 5000 items
@@ -101,9 +89,8 @@ export class SPDataTasksItems extends SPDataBase {
      */
     public async get(id: number): Promise<TaskItem> {
         console.log(`${LOG_SOURCE}: get ${id}`);
-        const listName = this.getListName();
 
-        const spItem = await this._sp.web.lists.getByTitle(listName)
+        const spItem = await this.getListByTitle(this.listName)
             .items
             .select(...FIELDS)
             .getById(id)
@@ -120,9 +107,10 @@ export class SPDataTasksItems extends SPDataBase {
     public async add(item: TaskItem): Promise<TaskItem> {
         console.log(`${LOG_SOURCE}: add ${item.title}`);
 
-        const listName = this.getListName();
         const data = mapFromTaskItem(item);
-        const newSpitem = await this._sp.web.lists.getByTitle(listName).items.add(data);
+        const newSpitem = await this.getListByTitle(this.listName)
+            .items
+            .add(data);
 
         return mapToTaskItem(newSpitem);
     }
@@ -134,9 +122,8 @@ export class SPDataTasksItems extends SPDataBase {
     public async update(item: TaskItem): Promise<void> {
         console.log(`${LOG_SOURCE}: update ${item.id}`);
 
-        const listName = this.getListName();
         const data = mapFromTaskItem(item);
-        await this._sp.web.lists.getByTitle(listName)
+        await this.getListByTitle(this.listName)
             .items
             .getById(item.id)
             .update(data);
@@ -149,8 +136,10 @@ export class SPDataTasksItems extends SPDataBase {
     public async delete(id: number): Promise<void> {
         console.log(`${LOG_SOURCE}: delete ${id}`);
 
-        const listName = this.getListName();
-        await this._sp.web.lists.getByTitle(listName).items.getById(id).delete();
+        await this.getListByTitle(this.listName)
+            .items
+            .getById(id)
+            .delete();
     }
 
 }

@@ -1,4 +1,4 @@
-import { IDataService } from "../../../services/IDataService";
+import SPDataService from "../../../services/SPDataService";
 
 export interface IWebPartTemplateProps {
   description: string;
@@ -6,5 +6,5 @@ export interface IWebPartTemplateProps {
   environmentMessage: string;
   hasTeamsContext: boolean;
   userDisplayName: string;
-  dataService: IDataService;
+  dataService: SPDataService;
 }

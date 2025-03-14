@@ -3,7 +3,7 @@
   "solution": {
     "name": "sgart-spfx-base-template-client-side-solution",
     "id": "322d7988-b46c-4eaa-8418-5cde782b061d",
-    "version": "2.0.0.0",
+    "version": "2.0.0.1",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,

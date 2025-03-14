@@ -1,4 +1,4 @@
-import { SPDataBase } from "../SPDataBase";
+import { SPDataBase } from "../base/SPDataBase";
 import { stringIsNullOrEmpty } from "@pnp/core";
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
@@ -47,38 +47,30 @@ export class SPDataItems extends SPDataBase {
      */
     public async getItems(listName: string, text: string): Promise<TaskItem[]> {
         console.log(`${LOG_SOURCE} - getItems() - from list '${listName}'`);
-        try {
-            if (stringIsNullOrEmpty(listName)) {
-                throw new Error("Listname is null");
-            }
 
-            // prepare filter
-            const dataFilter = this._sp.web.lists.getByTitle(listName)
-                .items
-                .top(100)
-                //.filter(`startswith(Title,'${text ?? ''}')`)
-                .select(...FIELDS)
-                //select("Title", "FileRef", "FieldValuesAsText/MetaInfo")
-                //.expand("FieldValuesAsText")
-                .orderBy("Id");
-            if(stringIsNullOrEmpty(text)===false) {
-                //dataFilter.filter(f => f.text("Title").startsWith(text ?? ''));
-                // funziona solo con liste con meno di 5000 items
-                dataFilter.filter(f => f.text("Title").contains(text ?? ''));
-            }
-
-            // execute query
-            const data = await dataFilter();
-
-            // map to DTO
-            const items = data.map<TaskItem>(spItem => mapToTaskItem(spItem));
-            console.log("Items", items);
-
-            return items;
-        } catch (e) {
-            console.error(LOG_SOURCE + " - getItems() - error: ", e);
+        // prepare filter
+        const dataFilter = this.getListByTitle(listName)
+            .items
+            .top(100)
+            //.filter(`startswith(Title,'${text ?? ''}')`)
+            .select(...FIELDS)
+            //select("Title", "FileRef", "FieldValuesAsText/MetaInfo")
+            //.expand("FieldValuesAsText")
+            .orderBy("Id");
+        if (stringIsNullOrEmpty(text) === false) {
+            //dataFilter.filter(f => f.text("Title").startsWith(text ?? ''));
+            // funziona solo con liste con meno di 5000 items
+            dataFilter.filter(f => f.text("Title").contains(text ?? ''));
         }
-        return [];
+
+        // execute query
+        const data = await dataFilter();
+
+        // map to DTO
+        const items = data.map<TaskItem>(spItem => mapToTaskItem(spItem));
+        console.log("Items", items);
+
+        return items;
     }
 
 
@@ -89,7 +81,7 @@ export class SPDataItems extends SPDataBase {
      * @returns 
      */
     public async getItem(listName: string, itemId: number): Promise<TaskItem> {
-        const spItem = await this._sp.web.lists.getByTitle(listName)
+        const spItem = await this.getListByTitle(listName)
             .items
             .select(...FIELDS)
             .getById(itemId)
@@ -105,7 +97,8 @@ export class SPDataItems extends SPDataBase {
      */
     public async updateItem(listName: string, item: TaskItem): Promise<void> {
         const data = mapFromTaskItem(item);
-        await this._sp.web.lists.getByTitle(listName)
+
+        await this.getListByTitle(listName)
             .items
             .getById(item.id)
             .update(data);
@@ -119,7 +112,10 @@ export class SPDataItems extends SPDataBase {
      */
     public async addItem(listName: string, item: TaskItem): Promise<TaskItem> {
         const data = mapFromTaskItem(item);
-        const newSpitem = await this._sp.web.lists.getByTitle(listName).items.add(data);
+
+        const newSpitem = await this.getListByTitle(listName)
+            .items
+            .add(data);
 
         return mapToTaskItem(newSpitem);
     }
@@ -130,14 +126,10 @@ export class SPDataItems extends SPDataBase {
      * @param itemId 
      */
     public async deleteItem(listName: string, itemId: number): Promise<void> {
-        console.log(LOG_SOURCE + " - deleteItem() - from list '" + listName + "' - ID: '" + itemId + "' ");
-        try {
-            await this._sp.web.lists.getByTitle(listName).items.getById(itemId).delete();
-            console.log(LOG_SOURCE + " - deleteItem() - item deleted.");
-        } catch (e) {
-            console.error(LOG_SOURCE + " - deleteItem() - item deleted with error.", e);
-        }
+
+        await this.getListByTitle(listName)
+            .items
+            .getById(itemId)
+            .delete();
     }
-
-
 }

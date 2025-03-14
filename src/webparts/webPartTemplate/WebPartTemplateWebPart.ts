@@ -11,7 +11,6 @@ import { IReadonlyTheme } from '@microsoft/sp-component-base';
 import * as strings from 'WebPartTemplateWebPartStrings';
 import WebPartTemplate from './components/WebPartTemplate';
 import { IWebPartTemplateProps } from './components/IWebPartTemplateProps';
-import { IDataService } from '../../services/IDataService';
 import SPDataService from '../../services/SPDataService';
 import { PropertyPaneWebPartInformation } from '@pnp/spfx-property-controls/lib/PropertyPaneWebPartInformation';
 
@@ -25,7 +24,7 @@ export default class WebPartTemplateWebPart extends BaseClientSideWebPart<IWebPa
 
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = '';
-  private _dataService: IDataService;
+  private _dataService: SPDataService;
   //private _dataServicePartial: SPDataServicePartial; //DG Test utilizzo classe parziale
 
   public render(): void {
