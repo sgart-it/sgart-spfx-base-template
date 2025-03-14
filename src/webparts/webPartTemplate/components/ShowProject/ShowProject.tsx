@@ -6,7 +6,7 @@ const ShowProject: React.FC<{ id: number; text: string }> = (props) => {
     const link = `/project/${id}`;
 
     return (
-        <a href={link} style={{ border: "1px solid green" }}>
+        <a href={link} style={{ border: "1px solid green" }} title={text}>
             {text}
         </a>
     );

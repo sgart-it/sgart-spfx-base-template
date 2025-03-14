@@ -3,18 +3,12 @@ import { useEffect, useState } from 'react';
 import styles from './WebPartTemplate.module.scss';
 import type { IWebPartTemplateProps } from './IWebPartTemplateProps';
 import { escape } from '@microsoft/sp-lodash-subset';
-import { ListView, IViewField, SelectionMode } from "@pnp/spfx-controls-react/lib/ListView";
-import { CommandBar, ICommandBarItemProps, IconButton, IIconProps, MessageBar, MessageBarType, Stack, TextField } from '@fluentui/react';
+import { CommandBar, ICommandBarItemProps, MessageBar, MessageBarType, Stack, TextField } from '@fluentui/react';
 import { TaskItem } from '../../../dto/TaskItem';
-import ShowDate from './ShowDate/ShowDate';
-import ShowProject from './ShowProject/ShowProject';
-import ShowFlag from './ShowFlag/ShowFlag';
 import { LOG_SOURCE_BASE } from '../../../constants';
+import TaskListView, { TaskListViewEvents } from './TaskListView/TaskListView';
 
 const LOG_SOURCE: string = LOG_SOURCE_BASE + ':WebPartTemplate:';
-
-const deleteIcon: IIconProps = { iconName: 'Delete' };
-const editIcon: IIconProps = { iconName: 'Edit' };
 
 const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) => {
 
@@ -61,40 +55,6 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
     }
   };
 
-  const getSelection = (items: TaskItem[]): void => {
-    console.debug(`${LOG_SOURCE}`, items);
-  };
-
-  const onDelete = async (id: number): Promise<void> => {
-    console.debug(`${LOG_SOURCE} selected item id ${id} for delete`);
-    try {
-      await spService.tasks.delete(id);
-      loadItems();
-    } catch (e) {
-      console.error(`${LOG_SOURCE} onDelete`, e);
-    }
-  };
-
-  const onEdit = async (item: TaskItem): Promise<void> => {
-    console.debug(`${LOG_SOURCE} selected item for edit:`, item);
-
-    item.projectName = item.projectName + " " + (new Date).toDateString();
-
-    try {
-      await spService.tasks.update(item);
-      loadItems();
-    } catch (e) {
-      console.error(`${LOG_SOURCE} onEdit`, e);
-    }
-  };
-
-  const onIsCompleted = async(item: TaskItem, newValue: boolean) : Promise<void> => {
-    const updateItem = {...item};
-    updateItem.isCompleted = newValue;
-    await spService.tasks.update(updateItem);
-    loadItems();
-  }
-
   const barItems: ICommandBarItemProps[] = [
     {
       key: 'load',
@@ -110,48 +70,30 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
     },
   ];
 
-  const viewFields: IViewField[] = [
-    {
-      name: "title",
-      displayName: "Title",
-      maxWidth: 100
-    },
-    {
-      name: "id",
-      displayName: "Id",
-      maxWidth: 50
-    },
-    {
-      name: "isCompleted",
-      displayName: "Completed",
-      maxWidth: 50,
-      render: (rowItem: TaskItem) => <ShowFlag value={rowItem.isCompleted} onChangeValue={async (value) => await onIsCompleted(rowItem, value) } />
-    },
-    {
-      name: "projectName",
-      displayName: "Project name",
-      maxWidth: 100,
-      render: (rowItem: TaskItem) => <ShowProject id={rowItem.id} text={rowItem.projectName} />
-    },
-    {
-      name: "modifiedStr",
-      displayName: "Modified",
-      maxWidth: 100,
-      render: (rowItem: TaskItem) => <ShowDate date={rowItem.modifiedStr} />
-    },
-    {
-      name: "",
-      sorting: false,
-      maxWidth: 40,
-      render: (rowItem: TaskItem) => {
-        const buttons = <div>
-          <IconButton iconProps={deleteIcon} onClick={async () => { await onDelete(rowItem.id) }} title="Delete" ariaLabel="delete" />
-          <IconButton iconProps={editIcon} onClick={async () => { await onEdit(rowItem) }} title="Edit" ariaLabel="edit" />
-        </div>;
-        return buttons;
+  // Event handler TaskListView
+  const onUpdatingTaskList = async (event: TaskListViewEvents, item: TaskItem): Promise<void> => {
+    console.debug(`${LOG_SOURCE} onUpdatingTaskList`, event, item);
+    try {
+      switch (event) {
+        case 'delete':
+          await spService.tasks.delete(item.id);
+          break;
+        case 'edit':
+          item.projectName = item.projectName + " " + (new Date).toDateString();
+          await spService.tasks.update(item);
+          break;
+        case 'update':
+          await spService.tasks.update(item);
+          break;
+        default:
+          console.warn(`${LOG_SOURCE} onUpdatingTaskList`, `Event ${event} not supported.`);
+          return;
       }
+      loadItems();
+    } catch (e) {
+      console.error(`${LOG_SOURCE} onUpdatingTaskList`, e);
     }
-  ];
+  }
 
   //componentDidMount
   useEffect(() => {
@@ -200,15 +142,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
           </MessageBar>
         }
         <div>
-          <ListView
-            items={items}
-            viewFields={viewFields}
-            iconFieldName="FileRef"
-            compact={true}
-            selectionMode={SelectionMode.none}
-            selection={getSelection}
-            stickyHeader={true}
-          />
+          <TaskListView items={items} onUpdating={onUpdatingTaskList} />
         </div>
       </div>
     </section>
