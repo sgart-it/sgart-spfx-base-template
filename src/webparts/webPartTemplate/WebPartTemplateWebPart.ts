@@ -13,6 +13,9 @@ import WebPartTemplate from './components/WebPartTemplate';
 import { IWebPartTemplateProps } from './components/IWebPartTemplateProps';
 import SPDataService from '../../services/SPDataService';
 import { PropertyPaneWebPartInformation } from '@pnp/spfx-property-controls/lib/PropertyPaneWebPartInformation';
+import { LOG_SOURCE_BASE } from '../../constants';
+
+const LOG_SOURCE: string = LOG_SOURCE_BASE + ':WebPartTemplateWebPart:';
 
 export interface IWebPartTemplateWebPartProps {
   description: string;
@@ -47,7 +50,8 @@ export default class WebPartTemplateWebPart extends BaseClientSideWebPart<IWebPa
     this._dataService = new SPDataService(this.context.serviceScope);
     this._dataService.setTaskListName(this.properties.taskListName);
 
-    console.log("dataService: ", this._dataService);
+    console.log(`${LOG_SOURCE} onInit()`);
+    
     return this._getEnvironmentMessage().then(message => {
       this._environmentMessage = message;
     });

@@ -5,9 +5,10 @@ import { SPDataFiles } from "./lists/SPDataFiles";
 import "@pnp/sp/webs";
 import "@pnp/sp/lists/web";
 import { SPDataTasksItems } from "./items/SPDataTasksItems";
-import { stringIsNullOrEmpty } from "@pnp/core";
+import { objectDefinedNotNull, stringIsNullOrEmpty } from "@pnp/core";
+import { LOG_SOURCE_BASE } from "../constants";
 
-const LOG_SOURCE: string = 'SPDataService';
+const LOG_SOURCE: string = LOG_SOURCE_BASE + ':SPDataService:';
 
 export default class SPDataService {
     //Registro il servizio
@@ -16,12 +17,12 @@ export default class SPDataService {
     //Costruttore per inizializzare pnp/pnpjs, usa gli scope.
     //https://ypcode.io/posts/2019/01/spfx-webpart-scoped-service/
     constructor(private serviceScope: ServiceScope) {
-        console.log(`${LOG_SOURCE}: SPDataService ${serviceScope}`);
-
+        console.log(`${LOG_SOURCE} dataService: ${objectDefinedNotNull(serviceScope)}`);
+        
         // serviceScope.whenFinished(() => { ...  });
     }
 
-    //Istanzio classe SPDataLists solo se necessaria - Lazy loading
+    // metodi generici
     private _lists: SPDataLists | undefined = undefined;
     public get lists(): SPDataLists {
         if (this._lists === undefined) {
@@ -46,13 +47,14 @@ export default class SPDataService {
         return this._files;
     }
 
+    // Metodi tipizzati
     // Tasks
     private _taskListName: string;
     private _tasks: SPDataTasksItems | undefined = undefined;
 
-    public setTaskListName = (listName: string): void => { 
+    public setTaskListName = (listName: string): void => {
         this._taskListName = listName;
-        if(stringIsNullOrEmpty(this._taskListName)){
+        if (stringIsNullOrEmpty(this._taskListName)) {
             console.error(`TaskListName is null`);
         }
     };

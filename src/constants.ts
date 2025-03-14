@@ -1,0 +1,1 @@
+export const LOG_SOURCE_BASE = 'sgart-spfx-base-template';

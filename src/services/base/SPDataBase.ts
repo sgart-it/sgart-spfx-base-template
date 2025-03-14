@@ -4,13 +4,14 @@ import { graphfi, GraphFI, SPFx as gSPFx } from "@pnp/graph";
 import { spfi, SPFI, SPFx as spSPFx } from "@pnp/sp";
 import { AadHttpClientFactory, AadTokenProviderFactory, HttpClient } from "@microsoft/sp-http";
 import { IList } from "@pnp/sp/lists";
-import { stringIsNullOrEmpty } from "@pnp/core";
+import { objectDefinedNotNull, stringIsNullOrEmpty } from "@pnp/core";
+import { LOG_SOURCE_BASE } from "../../constants";
 
-const LOG_SOURCE: string = 'SPDataBase';
+const LOG_SOURCE: string = LOG_SOURCE_BASE + ':SPDataBase:';
 /*
 Classe base per iniziallizzare PnP/PnPjs
 */
-export class SPDataBase {
+export abstract class SPDataBase {
     
     private _serviceScope: ServiceScope
     private _sp: SPFI;
@@ -26,7 +27,7 @@ export class SPDataBase {
         if (this._sp === undefined) {
             const pageContext = this._serviceScope.consume(PageContext.serviceKey);
             this._sp = spfi().using(spSPFx({ pageContext }));
-            console.log(LOG_SOURCE + " - getSP() : ", this._sp);
+            console.debug(`${LOG_SOURCE} getSP() ${objectDefinedNotNull(this._sp)}`);
         }
         return this._sp;
     }
@@ -35,7 +36,7 @@ export class SPDataBase {
         if (this._graph !== undefined) {
             const aadTokenProviderFactory = this._serviceScope.consume(AadTokenProviderFactory.serviceKey);
             this._graph = graphfi().using(gSPFx({ aadTokenProviderFactory }));
-            console.log(LOG_SOURCE + " - getGraph(): ", this._graph);
+            console.debug(`${LOG_SOURCE} getGraph() ${objectDefinedNotNull(this._graph)}`);
         }
 
         return this._graph;
@@ -44,7 +45,7 @@ export class SPDataBase {
     protected getHttpClient(): HttpClient {
         if (this._httpClient === undefined) {
             this._httpClient = this._serviceScope.consume(HttpClient.serviceKey);
-            console.log(LOG_SOURCE + " - getHttpClient(): ", this._httpClient);
+            console.debug(`${LOG_SOURCE} getHttpClient() ${objectDefinedNotNull(this._httpClient)}`);
         }
         return this._httpClient;
     }
@@ -52,7 +53,7 @@ export class SPDataBase {
     protected getAadHttpClientFactory(): AadHttpClientFactory {
         if (this._aadHttpClientFactory === undefined) {
             this._aadHttpClientFactory = this._serviceScope.consume(AadHttpClientFactory.serviceKey);
-            console.log(LOG_SOURCE + " - getAadHttpClientFactory(): ", this._aadHttpClientFactory);
+            console.debug(`${LOG_SOURCE} getAadHttpClientFactory() ${objectDefinedNotNull(this._aadHttpClientFactory)}`);
         }
         return this._aadHttpClientFactory;
     }
@@ -64,5 +65,12 @@ export class SPDataBase {
             throw new Error("Listname is null");
 
         return this.getSP().web.lists.getByTitle(listName);
+    }
+
+    protected getListById(listId: string): IList {
+        if (stringIsNullOrEmpty(listId))
+            throw new Error("ListId is null");
+
+        return this.getSP().web.lists.getById(listId);
     }
 }

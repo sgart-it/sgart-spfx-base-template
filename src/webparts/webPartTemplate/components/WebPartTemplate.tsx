@@ -9,6 +9,9 @@ import { TaskItem } from '../../../dto/TaskItem';
 import ShowDate from './ShowDate/ShowDate';
 import ShowProject from './ShowProject/ShowProject';
 import ShowFlag from './ShowFlag/ShowFlag';
+import { LOG_SOURCE_BASE } from '../../../constants';
+
+const LOG_SOURCE: string = LOG_SOURCE_BASE + ':WebPartTemplate:';
 
 const deleteIcon: IIconProps = { iconName: 'Delete' };
 const editIcon: IIconProps = { iconName: 'Edit' };
@@ -18,7 +21,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
   const {
     dataService: spService,
     description,
-    isDarkTheme,
+    //isDarkTheme,
     environmentMessage,
     hasTeamsContext,
     userDisplayName
@@ -33,7 +36,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
     // debounce: https://www.freecodecamp.org/news/deboucing-in-react-autocomplete-example/
     spService.tasks.gets(textFilter)
       .then(items => setItems([...items]))
-      .catch(e => console.error("loadItems", e));
+      .catch(e => console.error(`${LOG_SOURCE} loadItems`, e));
   };
 
   const onLoadItems = async (): Promise<void> => {
@@ -51,29 +54,29 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
       };
 
       const newitem = await spService.tasks.add(item);
-      console.log(`Item adddes id: ${newitem.id}`);
+      console.debug(`${LOG_SOURCE} Item addded id: ${newitem.id}`);
       loadItems();
     } catch (error) {
-      console.error("_onCreate", error);
+      console.error(`${LOG_SOURCE} onCreate`, error);
     }
   };
 
   const getSelection = (items: TaskItem[]): void => {
-    console.log('Selected items:', items);
+    console.debug(`${LOG_SOURCE}`, items);
   };
 
   const onDelete = async (id: number): Promise<void> => {
-    console.log(`Selected item id ${id} for delete`);
+    console.debug(`${LOG_SOURCE} selected item id ${id} for delete`);
     try {
       await spService.tasks.delete(id);
       loadItems();
     } catch (e) {
-      console.error("_onDelete", e);
+      console.error(`${LOG_SOURCE} onDelete`, e);
     }
   };
 
   const onEdit = async (item: TaskItem): Promise<void> => {
-    console.log('Selected item for edit:', item);
+    console.debug(`${LOG_SOURCE} selected item for edit:`, item);
 
     item.projectName = item.projectName + " " + (new Date).toDateString();
 
@@ -81,7 +84,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
       await spService.tasks.update(item);
       loadItems();
     } catch (e) {
-      console.error("_onEdit", e);
+      console.error(`${LOG_SOURCE} onEdit`, e);
     }
   };
 
@@ -127,7 +130,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
     {
       name: "projectName",
       displayName: "Project name",
-      maxWidth: 150,
+      maxWidth: 100,
       render: (rowItem: TaskItem) => <ShowProject id={rowItem.id} text={rowItem.projectName} />
     },
     {
@@ -152,27 +155,27 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
 
   //componentDidMount
   useEffect(() => {
-    console.log("componentDidMount called.");
+    console.debug(`${LOG_SOURCE} componentDidMount called.`);
     //void loadItems();
   }, []);
 
   //componentDidUpdate
   useEffect(() => {
-    console.log("componentDidUpdate called.");
+    console.debug(`${LOG_SOURCE} componentDidUpdate called.`);
     loadItems();
   }, [textFilter]);
 
   //componentWillUnmount
   useEffect(() => {
     return () => {
-      console.log("componentWillUnmount called.");
+      console.debug(`${LOG_SOURCE} componentWillUnmount called.`);
     };
-  }, [items]);
+  }, []);
 
   return (
     <section className={`${styles.webPartTemplate} ${hasTeamsContext ? styles.teams : ''}`}>
       <div className={styles.welcome}>
-        <img alt="" src={isDarkTheme ? require('../assets/welcome-dark.png') : require('../assets/welcome-light.png')} className={styles.welcomeImage} />
+        {/* <img alt="" src={isDarkTheme ? require('../assets/welcome-dark.png') : require('../assets/welcome-light.png')} className={styles.welcomeImage} /> */}
         <h2>Well done, {escape(userDisplayName)}!</h2>
         <div>{environmentMessage}</div>
         <div>Web part property value: <strong>{escape(description)}</strong></div>
@@ -189,7 +192,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
           <Stack>
             <TextField label="Search" value={textFilter} onChange={(_, newValue?: string) => setTextFilter(newValue ?? '')} />
           </Stack>
-          <p>*{textFilter}*</p>
+          <p>Filter text: [{textFilter}]</p>
         </div>
         {items.length === 0 &&
           <MessageBar delayedRender={false} messageBarType={MessageBarType.error}>
@@ -202,7 +205,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
             viewFields={viewFields}
             iconFieldName="FileRef"
             compact={true}
-            selectionMode={SelectionMode.single}
+            selectionMode={SelectionMode.none}
             selection={getSelection}
             stickyHeader={true}
           />

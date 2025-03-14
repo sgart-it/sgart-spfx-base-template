@@ -5,6 +5,11 @@ import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/items";
 import { TaskItem } from "../../dto/TaskItem";
+import { LOG_SOURCE_BASE } from "../../constants";
+
+const LOG_SOURCE: string = LOG_SOURCE_BASE + ':SPDataTasksItems:';
+
+const FIELDS = ["Id", "Title", "ProjectName", "Completed", "Modified"];
 
 const mapFromTaskItem = (item: TaskItem): Record<string, unknown> => ({
     Title: item.title,
@@ -14,11 +19,6 @@ const mapFromTaskItem = (item: TaskItem): Record<string, unknown> => ({
 
 const mapToTaskItem = (data: unknown): TaskItem => {
     const { Id, Title, ProjectName, Completed, Modified } = data as { Id: number; Title: string; ProjectName: string, Completed?: boolean, Modified?: string | null };
-
-    const v = stringIsNullOrEmpty(Modified)
-        ? undefined // mi assicuro di ritornare undefined e non null
-        : new Date(Modified);
-    console.log("v", v);
 
     return {
         key: Id.toString(),
@@ -35,16 +35,14 @@ const mapToTaskItem = (data: unknown): TaskItem => {
     };
 };
 
-const LOG_SOURCE: string = 'SPDataTasksItems';
 
-const FIELDS = ["Id", "Title", "ProjectName", "Completed", "Modified"];
 
 export class SPDataTasksItems extends SPDataBase {
 
     constructor(serviceScope: ServiceScope, private listName: string) {
         super(serviceScope);
 
-        console.log(`${LOG_SOURCE}: listName '${this.listName}'`);
+        console.debug(`${LOG_SOURCE} listName '${this.listName}'`);
     }
 
     /**
@@ -54,7 +52,7 @@ export class SPDataTasksItems extends SPDataBase {
      * @returns 
      */
     public async gets(text: string): Promise<TaskItem[]> {
-        console.log(`${LOG_SOURCE}: gets filter  with'${text}'`);
+        console.debug(`${LOG_SOURCE} gets filter '${text}'`);
 
         // prepare filter
         const dataFilter = this.getListByTitle(this.listName)
@@ -76,7 +74,8 @@ export class SPDataTasksItems extends SPDataBase {
 
         // map to DTO
         const items = data.map<TaskItem>(spItem => mapToTaskItem(spItem));
-        console.log("Items", items);
+
+        console.debug(`${LOG_SOURCE}`, items);
 
         return items;
     }
@@ -88,7 +87,7 @@ export class SPDataTasksItems extends SPDataBase {
      * @returns 
      */
     public async get(id: number): Promise<TaskItem> {
-        console.log(`${LOG_SOURCE}: get ${id}`);
+        console.debug(`${LOG_SOURCE} get ${id}`);
 
         const spItem = await this.getListByTitle(this.listName)
             .items
@@ -105,7 +104,7 @@ export class SPDataTasksItems extends SPDataBase {
      * @returns 
      */
     public async add(item: TaskItem): Promise<TaskItem> {
-        console.log(`${LOG_SOURCE}: add ${item.title}`);
+        console.debug(`${LOG_SOURCE} add ${item.title}`);
 
         const data = mapFromTaskItem(item);
         const newSpitem = await this.getListByTitle(this.listName)
@@ -120,7 +119,7 @@ export class SPDataTasksItems extends SPDataBase {
      * @param item 
      */
     public async update(item: TaskItem): Promise<void> {
-        console.log(`${LOG_SOURCE}: update ${item.id}`);
+        console.debug(`${LOG_SOURCE} update ${item.id}`);
 
         const data = mapFromTaskItem(item);
         await this.getListByTitle(this.listName)
@@ -134,7 +133,7 @@ export class SPDataTasksItems extends SPDataBase {
      * @param id 
      */
     public async delete(id: number): Promise<void> {
-        console.log(`${LOG_SOURCE}: delete ${id}`);
+        console.debug(`${LOG_SOURCE} delete ${id}`);
 
         await this.getListByTitle(this.listName)
             .items

@@ -7,7 +7,7 @@ export type ShowDateProp = {
     dateOnly?: boolean;
 };
 
-const ShowDate: React.FunctionComponent<ShowDateProp> = (props: ShowDateProp) => {
+const ShowDate: React.FunctionComponent<ShowDateProp> = (props: ShowDateProp): JSX.Element => {
     const { date, locale, dateOnly } = props;
 
     const str = formatDate(date, locale, dateOnly);

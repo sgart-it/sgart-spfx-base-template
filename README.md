@@ -7,7 +7,7 @@ Esempio di progetto SPFX da utilizzare come template realizzato con **React func
 
 ## List
 
-Per funzionare richiede una  lista SharePoint di nome **Tasks** con i seguenti campi
+Per funzionare richiede una lista SharePoint il cui nome può essere impostato nelle properietà della webpart(default **Tasks**) con i seguenti campi:
 - Title (text)
 - ProjectName (text)
 - Completed (yes/no)

@@ -1,6 +1,7 @@
+/*
 import * as React from 'react';
 
-const ShowProject: React.FC<{ id: number; text: string }> = (props) => {
+const TaskListView: React.FC<{ id: number; text: string }> = (props) => {
     const { id, text } = props;
 
     const link = `/project/${id}`;
@@ -12,4 +13,5 @@ const ShowProject: React.FC<{ id: number; text: string }> = (props) => {
     );
 };
 
-export default ShowProject;
+export default TaskListView;
+*/
