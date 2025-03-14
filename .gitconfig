@@ -1,8 +1,0 @@
-[user]
-	name = SgartIT
-	email = alberto@sgart.it
-[credential]
-	helper = manager
-[http]
-	sslBackend = schannel
-
