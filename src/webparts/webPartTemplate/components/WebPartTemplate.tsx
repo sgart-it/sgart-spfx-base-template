@@ -17,7 +17,6 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
 
   const {
     dataService: spService,
-    listName,
     description,
     isDarkTheme,
     environmentMessage,
@@ -32,7 +31,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
 
   const loadItems = (): void => {
     // debounce: https://www.freecodecamp.org/news/deboucing-in-react-autocomplete-example/
-    spService.items.getItems(listName, textFilter)
+    spService.tasks.gets(textFilter)
       .then(items => setItems([...items]))
       .catch(e => console.error("loadItems", e));
   };
@@ -51,7 +50,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
         projectName: "Project " + str
       };
 
-      const newitem = await spService.items.addItem(listName, item);
+      const newitem = await spService.tasks.add(item);
       console.log(`Item adddes id: ${newitem.id}`);
       loadItems();
     } catch (error) {
@@ -66,7 +65,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
   const onDelete = async (id: number): Promise<void> => {
     console.log(`Selected item id ${id} for delete`);
     try {
-      await spService.items.deleteItem(listName, id);
+      await spService.tasks.delete(id);
       loadItems();
     } catch (e) {
       console.error("_onDelete", e);
@@ -79,7 +78,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
     item.projectName = item.projectName + " " + (new Date).toDateString();
 
     try {
-      await spService.items.updateItem(listName, item);
+      await spService.tasks.update(item);
       loadItems();
     } catch (e) {
       console.error("_onEdit", e);
@@ -89,7 +88,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
   const onIsCompleted = async(item: TaskItem, newValue: boolean) : Promise<void> => {
     const updateItem = {...item};
     updateItem.isCompleted = newValue;
-    await spService.items.updateItem(listName, updateItem);
+    await spService.tasks.update(updateItem);
     loadItems();
   }
 

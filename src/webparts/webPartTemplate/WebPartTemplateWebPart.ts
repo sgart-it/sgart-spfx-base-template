@@ -18,7 +18,7 @@ import { PropertyPaneWebPartInformation } from '@pnp/spfx-property-controls/lib/
 export interface IWebPartTemplateWebPartProps {
   description: string;
   toggleInfoHeaderValue: boolean;
-  listName: string
+  taskListName: string
 }
 
 export default class WebPartTemplateWebPart extends BaseClientSideWebPart<IWebPartTemplateWebPartProps> {
@@ -37,8 +37,7 @@ export default class WebPartTemplateWebPart extends BaseClientSideWebPart<IWebPa
         environmentMessage: this._environmentMessage,
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
         userDisplayName: this.context.pageContext.user.displayName,
-        dataService: this._dataService, //DG 
-        listName: this.properties.listName //DG
+        dataService: this._dataService
       }
     );
 
@@ -47,6 +46,7 @@ export default class WebPartTemplateWebPart extends BaseClientSideWebPart<IWebPa
 
   protected onInit(): Promise<void> {
     this._dataService = new SPDataService(this.context.serviceScope);
+    this._dataService.setTaskListName(this.properties.taskListName);
 
     console.log("dataService: ", this._dataService);
     return this._getEnvironmentMessage().then(message => {
@@ -121,7 +121,7 @@ export default class WebPartTemplateWebPart extends BaseClientSideWebPart<IWebPa
                 PropertyPaneTextField('description', {
                   label: strings.DescriptionFieldLabel
                 }),
-                PropertyPaneTextField('listName', {
+                PropertyPaneTextField('taskListName', {
                   label: "List"
                 })
               ]

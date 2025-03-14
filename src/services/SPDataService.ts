@@ -9,6 +9,8 @@ import { SPDataItems } from "./items/SPDataItems";
 import { SPDataFiles } from "./lists/SPDataFiles";
 import "@pnp/sp/webs";
 import "@pnp/sp/lists/web";
+import { SPDataTasksItems } from "./items/SPDataTasksItems";
+import { stringIsNullOrEmpty } from "@pnp/core";
 
 const LOG_SOURCE: string = 'SPDataService';
 
@@ -28,12 +30,13 @@ export default class SPDataService implements IDataService {
     //Costruttore per inizializzare pnp/pnpjs, usa gli scope.
     //https://ypcode.io/posts/2019/01/spfx-webpart-scoped-service/
     constructor(serviceScope: ServiceScope) {
+
         console.log(LOG_SOURCE + " - constructor() - ServiceScope: ", serviceScope);
 
         serviceScope.whenFinished(() => {
             this.aadHttpClientFactory = serviceScope.consume(AadHttpClientFactory.serviceKey);
             console.log(LOG_SOURCE + " - constructor() - aadHttpClientFactory: ", this.aadHttpClientFactory);
-            
+
             this.httpClient = serviceScope.consume(HttpClient.serviceKey);
             console.log(LOG_SOURCE + " - constructor() - httpClient: ", this.httpClient);
 
@@ -41,7 +44,7 @@ export default class SPDataService implements IDataService {
             const pageContext = serviceScope.consume(PageContext.serviceKey);
             this._sp = spfi().using(spSPFx({ pageContext }));
             console.log(LOG_SOURCE + " - constructor() - _sp: ", this._sp);
-            
+
             //Graph
             const aadTokenProviderFactory = serviceScope.consume(AadTokenProviderFactory.serviceKey);
             this._graph = graphfi().using(gSPFx({ aadTokenProviderFactory }));
@@ -70,4 +73,23 @@ export default class SPDataService implements IDataService {
         }
         return this._files;
     }
+
+    // Tasks
+    private _taskListName: string;
+    private _tasks: SPDataTasksItems | undefined = undefined;
+
+    public setTaskListName = (listName: string): void => { 
+        this._taskListName = listName;
+        if(stringIsNullOrEmpty(this._taskListName)){
+            console.error(`TaskListName is null`);
+        }
+    };
+
+    public get tasks(): SPDataTasksItems {
+        if (this._tasks === undefined) {
+            this._tasks = new SPDataTasksItems(this._sp, this._graph, this._taskListName);
+        }
+        return this._tasks;
+    }
 }
+

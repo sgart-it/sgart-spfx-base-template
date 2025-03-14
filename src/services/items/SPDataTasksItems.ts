@@ -4,6 +4,8 @@ import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/items";
 import { TaskItem } from "../../dto/TaskItem";
+import { SPFI } from "@pnp/sp";
+import { GraphFI } from "@pnp/graph";
 
 const mapFromTaskItem = (item: TaskItem): Record<string, unknown> => ({
     Title: item.title,
@@ -34,19 +36,29 @@ const mapToTaskItem = (data: unknown): TaskItem => {
     };
 };
 
-const LOG_SOURCE: string = 'SPDataItems';
+const LOG_SOURCE: string = 'SPDataTasksItems';
 
 const FIELDS = ["Id", "Title", "ProjectName", "Completed", "Modified"];
 
-export class SPDataItems extends SPDataBase {
+export class SPDataTasksItems extends SPDataBase {
+
+    private _listName: string;
+
+    constructor(sp: SPFI, graph: GraphFI, listName: string) {
+        super(sp, graph);
+
+        this._listName = listName;
+    }
+
     /**
      * Metodo per recuperare tutti gli item di una lista TODO verificare con lista di grandi dimensioni
      * questo metodo restituisce solo 100 item
-     * @param listName 
+     * @param text stringa con cui filtrare i risultati
      * @returns 
      */
-    public async getItems(listName: string, text: string): Promise<TaskItem[]> {
-        console.log(`${LOG_SOURCE} - getItems() - from list '${listName}'`);
+    public async gets(text: string): Promise<TaskItem[]> {
+        const listName = this._listName;
+        console.log(`${LOG_SOURCE} - gets() - from list '${listName}'`);
         try {
             if (stringIsNullOrEmpty(listName)) {
                 throw new Error("Listname is null");
@@ -61,7 +73,7 @@ export class SPDataItems extends SPDataBase {
                 //select("Title", "FileRef", "FieldValuesAsText/MetaInfo")
                 //.expand("FieldValuesAsText")
                 .orderBy("Id");
-            if(stringIsNullOrEmpty(text)===false) {
+            if (stringIsNullOrEmpty(text) === false) {
                 //dataFilter.filter(f => f.text("Title").startsWith(text ?? ''));
                 // funziona solo con liste con meno di 5000 items
                 dataFilter.filter(f => f.text("Title").contains(text ?? ''));
@@ -84,15 +96,15 @@ export class SPDataItems extends SPDataBase {
 
     /**
      * Metodo per recuperare un singolo item 
-     * @param listName Nome lista
-     * @param itemId id dell'item
+     * @param id id dell'item
      * @returns 
      */
-    public async getItem(listName: string, itemId: number): Promise<TaskItem> {
+    public async get(id: number): Promise<TaskItem> {
+        const listName = this._listName;
         const spItem = await this._sp.web.lists.getByTitle(listName)
             .items
             .select(...FIELDS)
-            .getById(itemId)
+            .getById(id)
             ();
 
         return mapToTaskItem(spItem);
@@ -100,10 +112,10 @@ export class SPDataItems extends SPDataBase {
 
     /**
      * Metodo per aggiornare un item
-     * @param listName 
      * @param item 
      */
-    public async updateItem(listName: string, item: TaskItem): Promise<void> {
+    public async update(item: TaskItem): Promise<void> {
+        const listName = this._listName;
         const data = mapFromTaskItem(item);
         await this._sp.web.lists.getByTitle(listName)
             .items
@@ -113,11 +125,11 @@ export class SPDataItems extends SPDataBase {
 
     /**
      * Metodo per aggiungere un item 
-     * @param listName 
      * @param item 
      * @returns 
      */
-    public async addItem(listName: string, item: TaskItem): Promise<TaskItem> {
+    public async add(item: TaskItem): Promise<TaskItem> {
+        const listName = this._listName;
         const data = mapFromTaskItem(item);
         const newSpitem = await this._sp.web.lists.getByTitle(listName).items.add(data);
 
@@ -129,7 +141,8 @@ export class SPDataItems extends SPDataBase {
      * @param listName 
      * @param itemId 
      */
-    public async deleteItem(listName: string, itemId: number): Promise<void> {
+    public async delete(itemId: number): Promise<void> {
+        const listName = this._listName;
         console.log(LOG_SOURCE + " - deleteItem() - from list '" + listName + "' - ID: '" + itemId + "' ");
         try {
             await this._sp.web.lists.getByTitle(listName).items.getById(itemId).delete();
