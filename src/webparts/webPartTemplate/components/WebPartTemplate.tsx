@@ -103,7 +103,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
       key: 'new',
       text: 'New item',
       iconProps: { iconName: 'NewFolder' },
-      onClick: (ev?: React.MouseEvent<HTMLElement, MouseEvent> | React.KeyboardEvent<HTMLElement> | undefined) => void onCreate()
+      onClick: () => void onCreate()
     },
   ];
 
