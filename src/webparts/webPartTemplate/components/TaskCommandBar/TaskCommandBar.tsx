@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { CommandBar, ICommandBarItemProps } from '@fluentui/react';
-import { LOG_SOURCE_BASE } from '../../../../constants';
+import { SOLUTION_NAME } from '../../../../constants';
 
-const LOG_SOURCE: string = LOG_SOURCE_BASE + ':TaskCommandBar:';
+const LOG_SOURCE: string = SOLUTION_NAME + ':TaskCommandBar:';
 
 export type TaskCommandBarEvents = | "refresh" | "new";
 

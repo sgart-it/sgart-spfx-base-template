@@ -4,9 +4,9 @@ import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/items";
 import { IItem } from "@pnp/sp/items";
-import { LOG_SOURCE_BASE } from "../../constants";
+import { SOLUTION_NAME } from "../../constants";
 
-const LOG_SOURCE: string = LOG_SOURCE_BASE + ':SPDataItems:';
+const LOG_SOURCE: string = SOLUTION_NAME + ':SPDataItems:';
 
 export class SPDataItems extends SPDataBase {
     /**

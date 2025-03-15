@@ -1,1 +1,1 @@
-export const LOG_SOURCE_BASE = 'sgart-spfx-base-template';
+export const SOLUTION_NAME = 'sgart-spfx-base-template';

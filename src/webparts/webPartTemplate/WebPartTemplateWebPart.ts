@@ -13,9 +13,9 @@ import WebPartTemplate from './components/WebPartTemplate';
 import { IWebPartTemplateProps } from './components/IWebPartTemplateProps';
 import SPDataService from '../../services/SPDataService';
 import { PropertyPaneWebPartInformation } from '@pnp/spfx-property-controls/lib/PropertyPaneWebPartInformation';
-import { LOG_SOURCE_BASE } from '../../constants';
+import { SOLUTION_NAME } from '../../constants';
 
-const LOG_SOURCE: string = LOG_SOURCE_BASE + ':WebPartTemplateWebPart:';
+const LOG_SOURCE: string = SOLUTION_NAME + ':WebPartTemplateWebPart:';
 
 export interface IWebPartTemplateWebPartProps {
   description: string;
@@ -140,7 +140,7 @@ export default class WebPartTemplateWebPart extends BaseClientSideWebPart<IWebPa
               groupName: "",
               groupFields: [
                 PropertyPaneWebPartInformation({
-                  description: 'Solution <strong>sgart-spfx-base-template</strong>, by <a href="https://msys.it/" target="_blank">Microsys</a>',
+                  description: `Solution <strong>${SOLUTION_NAME}</strong>, by <a href="https://msys.it/" target="_blank">Microsys</a>`,
                   //moreInfoLink: 'https://pnp.github.io/sp-dev-fx-property-controls/',
                   key: 'webPartInfoId'
                 })

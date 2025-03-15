@@ -22,7 +22,7 @@
     "description": { "default": "Demo WebPartTemplate React Functional Components and printDate" },
     "officeFabricIconFontName": "Page",
     "properties": {
-      "description": "sgart-spfx-base-template",
+      "description": "Demo WebPartTemplate React Functional Components and printDate",
       "taskListName": "Tasks"
     }
   }]

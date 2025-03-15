@@ -6,9 +6,9 @@ import "@pnp/sp/webs";
 import "@pnp/sp/lists/web";
 import { SPDataTasksItems } from "./items/SPDataTasksItems";
 import { objectDefinedNotNull, stringIsNullOrEmpty } from "@pnp/core";
-import { LOG_SOURCE_BASE } from "../constants";
+import { SOLUTION_NAME } from "../constants";
 
-const LOG_SOURCE: string = LOG_SOURCE_BASE + ':SPDataService:';
+const LOG_SOURCE: string = SOLUTION_NAME + ':SPDataService:';
 
 export default class SPDataService {
     //Registro il servizio

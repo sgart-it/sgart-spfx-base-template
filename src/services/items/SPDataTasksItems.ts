@@ -5,9 +5,9 @@ import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/items";
 import { TaskItem } from "../../dto/TaskItem";
-import { LOG_SOURCE_BASE } from "../../constants";
+import { SOLUTION_NAME } from "../../constants";
 
-const LOG_SOURCE: string = LOG_SOURCE_BASE + ':SPDataTasksItems:';
+const LOG_SOURCE: string = SOLUTION_NAME + ':SPDataTasksItems:';
 
 const FIELDS = ["Id", "Title", "ProjectName", "Completed", "Modified"];
 

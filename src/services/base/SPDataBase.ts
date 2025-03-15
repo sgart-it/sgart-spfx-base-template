@@ -5,9 +5,9 @@ import { spfi, SPFI, SPFx as spSPFx } from "@pnp/sp";
 import { AadHttpClientFactory, AadTokenProviderFactory, HttpClient } from "@microsoft/sp-http";
 import { IList } from "@pnp/sp/lists";
 import { objectDefinedNotNull, stringIsNullOrEmpty } from "@pnp/core";
-import { LOG_SOURCE_BASE } from "../../constants";
+import { SOLUTION_NAME } from "../../constants";
 
-const LOG_SOURCE: string = LOG_SOURCE_BASE + ':SPDataBase:';
+const LOG_SOURCE: string = SOLUTION_NAME + ':SPDataBase:';
 /*
 Classe base per iniziallizzare PnP/PnPjs
 */

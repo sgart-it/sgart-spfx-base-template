@@ -5,9 +5,9 @@ import { IconButton, IIconProps, MessageBar, MessageBarType } from '@fluentui/re
 import ShowFlag from '../ShowFlag/ShowFlag';
 import ShowProject from '../ShowProject/ShowProject';
 import ShowDate from '../ShowDate/ShowDate';
-import { LOG_SOURCE_BASE } from '../../../../constants';
+import { SOLUTION_NAME } from '../../../../constants';
 
-const LOG_SOURCE: string = LOG_SOURCE_BASE + ':TaskListView:';
+const LOG_SOURCE: string = SOLUTION_NAME + ':TaskListView:';
 
 const deleteIcon: IIconProps = { iconName: 'Delete' };
 const editIcon: IIconProps = { iconName: 'Edit' };

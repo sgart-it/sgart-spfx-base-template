@@ -5,12 +5,12 @@ import type { IWebPartTemplateProps } from './IWebPartTemplateProps';
 import { escape } from '@microsoft/sp-lodash-subset';
 import { Stack, TextField } from '@fluentui/react';
 import { TaskItem } from '../../../dto/TaskItem';
-import { LOG_SOURCE_BASE } from '../../../constants';
+import { SOLUTION_NAME } from '../../../constants';
 import TaskListView, { TaskListViewEvents } from './TaskListView/TaskListView';
 import TaskCommandBar, { TaskCommandBarEvents } from './TaskCommandBar/TaskCommandBar';
 import { stringIsNullOrEmpty } from "@pnp/core";
 
-const LOG_SOURCE: string = LOG_SOURCE_BASE + ':WebPartTemplate:';
+const LOG_SOURCE: string = SOLUTION_NAME + ':WebPartTemplate:';
 
 const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) => {
 
