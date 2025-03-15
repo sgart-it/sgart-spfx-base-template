@@ -9,6 +9,7 @@ import { SOLUTION_NAME } from '../../../constants';
 import TaskListView, { TaskListViewEvents } from './TaskListView/TaskListView';
 import TaskCommandBar, { TaskCommandBarEvents } from './TaskCommandBar/TaskCommandBar';
 import { stringIsNullOrEmpty } from "@pnp/core";
+import DialogYesNo from './Common/DialogYesNo';
 
 const LOG_SOURCE: string = SOLUTION_NAME + ':WebPartTemplate:';
 
@@ -26,6 +27,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
   // gestione dello stato
   const [textFilter, setTextFilter] = useState<string>('');
   const [items, setItems] = useState<TaskItem[]>([]);
+  const [idToDelete, setIdToDelete] = useState(0);
 
 
   const loadItems = async (): Promise<void> => {
@@ -57,14 +59,14 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
       switch (event) {
         case 'new':
           await createTaskItem();
-          break;       
+          break;
         case 'refresh':
-          break; 
+          break;
         default:
           console.warn(`${LOG_SOURCE} onCommandTaskList`, `Event ${event} not supported.`);
           return;
       }
-      await loadItems(); 
+      await loadItems();
     } catch (error) {
       console.error(`${LOG_SOURCE} onCommandTaskBar`, error);
     }
@@ -76,24 +78,36 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
     console.debug(`${LOG_SOURCE} onUpdatingTaskList`, event, item);
     try {
       switch (event) {
-        case 'delete':
-          await spService.tasks.delete(item.id);
-          break;
         case 'edit':
           item.projectName = item.projectName + " " + (new Date).toDateString();
           await spService.tasks.update(item);
+          await loadItems();
           break;
         case 'update':
           await spService.tasks.update(item);
+          await loadItems();
+          break;
+        case 'delete':
+          setIdToDelete(item.id);
+          //await spService.tasks.delete(item.id);
           break;
         default:
           console.warn(`${LOG_SOURCE} onUpdatingTaskList`, `Event ${event} not supported.`);
           return;
       }
-      await loadItems();
     } catch (e) {
       console.error(`${LOG_SOURCE} onUpdatingTaskList`, e);
     }
+  }
+
+  const onRespondeDialog = async (confirmed: boolean, data?: unknown): Promise<void> => {
+    console.debug(`${LOG_SOURCE} onRespondeDialog`, confirmed, data);
+    if (confirmed) {
+      console.debug(`${LOG_SOURCE} onRespondeDialog`, `Delete item id ${idToDelete}`);
+      await spService.tasks.delete(idToDelete);
+      await loadItems();
+    }
+    setIdToDelete(0);
   }
 
   //componentDidMount
@@ -128,9 +142,11 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
         <Stack>
           <TextField label="Search" value={textFilter} onChange={(_, newValue?: string) => setTextFilter(newValue ?? '')} />
           <p>Filter text: {stringIsNullOrEmpty(textFilter) ? '-' : textFilter}</p>
-          </Stack>
+        </Stack>
         <TaskListView items={items} onUpdating={onUpdatingTaskList} />
       </div>
+
+      {idToDelete !== 0 && <DialogYesNo message={`Delete item id ${idToDelete}`} onResponde={onRespondeDialog} />}
     </section>
   );
 

@@ -2,9 +2,9 @@ import * as React from 'react';
 import { TaskItem } from '../../../../dto/TaskItem';
 import { ListView, IViewField, SelectionMode } from "@pnp/spfx-controls-react/lib/ListView";
 import { IconButton, IIconProps, MessageBar, MessageBarType } from '@fluentui/react';
-import ShowFlag from '../ShowFlag/ShowFlag';
+import ShowFlag from '../Common/ShowFlag';
 import ShowProject from '../ShowProject/ShowProject';
-import ShowDate from '../ShowDate/ShowDate';
+import ShowDate from '../Common/ShowDate';
 import { SOLUTION_NAME } from '../../../../constants';
 
 const LOG_SOURCE: string = SOLUTION_NAME + ':TaskListView:';
