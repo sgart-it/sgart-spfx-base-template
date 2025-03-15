@@ -27,7 +27,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
   // gestione dello stato
   const [textFilter, setTextFilter] = useState<string>('');
   const [items, setItems] = useState<TaskItem[]>([]);
-  const [idToDelete, setIdToDelete] = useState(0);
+  const [taskToDelete, setTaskToDelete] = useState<TaskItem | undefined>(undefined);
 
 
   const loadItems = async (): Promise<void> => {
@@ -88,7 +88,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
           await loadItems();
           break;
         case 'delete':
-          setIdToDelete(item.id);
+          setTaskToDelete(item);
           //await spService.tasks.delete(item.id);
           break;
         default:
@@ -100,14 +100,14 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
     }
   }
 
-  const onRespondeDialog = async (confirmed: boolean, data?: unknown): Promise<void> => {
-    console.debug(`${LOG_SOURCE} onRespondeDialog`, confirmed, data);
+  const onRespondeDeleteDialog = async (confirmed: boolean, data?: unknown): Promise<void> => {
+    console.debug(`${LOG_SOURCE} onRespondeDialog`, confirmed);
     if (confirmed) {
-      console.debug(`${LOG_SOURCE} onRespondeDialog`, `Delete item id ${idToDelete}`);
-      await spService.tasks.delete(idToDelete);
+      console.warn(`${LOG_SOURCE} onRespondeDialog`, `Delete item`, data);
+      await spService.tasks.delete((data as TaskItem).id);
       await loadItems();
     }
-    setIdToDelete(0);
+    setTaskToDelete(undefined);
   }
 
   //componentDidMount
@@ -146,7 +146,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
         <TaskListView items={items} onUpdating={onUpdatingTaskList} />
       </div>
 
-      {idToDelete !== 0 && <DialogYesNo message={`Delete item id ${idToDelete}`} onResponde={onRespondeDialog} />}
+      {taskToDelete && <DialogYesNo message={`Delete item id ${taskToDelete.id} with title '${taskToDelete.title}'`} onResponde={onRespondeDeleteDialog} data={taskToDelete}/>}
     </section>
   );
 
