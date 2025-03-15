@@ -1,5 +1,5 @@
 import { Toggle } from '@fluentui/react';
-import * as React from 'react';
+import * as React from "react";
 /*
 const iconClass = mergeStyles({
     fontSize: 50,
@@ -8,10 +8,18 @@ const iconClass = mergeStyles({
     margin: '0 25px',
 });*/
 
-const ShowFlag: React.FC<{ value: boolean, onChangeValue?: (value: boolean) => void }> = (props) => {
-    const { value, onChangeValue } = props;
+/*
+interface IShowFlagProps {
+    value: boolean;
+    onChangeValue?: (value: boolean) => void;
+}
+    */
 
-    const onChangeLocal = (event: React.MouseEvent<HTMLElement>, checked?: boolean): void => {
+// const ShowFlag: React.FC<IShowFlagProps> = (props) => {
+// const ShowFlag: React.FC<IShowFlagProps> = ({ value, onChangeValue }) => {
+const ShowFlag: React.FC<{ value: boolean, onChangeValue?: (value: boolean) => void }> = ({ value, onChangeValue }) => {
+
+    const onChangeLocal = (_: React.MouseEvent<HTMLElement>, checked?: boolean): void => {
         if (onChangeValue)
             onChangeValue(checked ?? false);
     };
