@@ -3,10 +3,12 @@ import { useEffect, useState } from 'react';
 import styles from './WebPartTemplate.module.scss';
 import type { IWebPartTemplateProps } from './IWebPartTemplateProps';
 import { escape } from '@microsoft/sp-lodash-subset';
-import { CommandBar, ICommandBarItemProps, MessageBar, MessageBarType, Stack, TextField } from '@fluentui/react';
+import { Stack, TextField } from '@fluentui/react';
 import { TaskItem } from '../../../dto/TaskItem';
 import { LOG_SOURCE_BASE } from '../../../constants';
 import TaskListView, { TaskListViewEvents } from './TaskListView/TaskListView';
+import TaskCommandBar, { TaskCommandBarEvents } from './TaskCommandBar/TaskCommandBar';
+import { stringIsNullOrEmpty } from "@pnp/core";
 
 const LOG_SOURCE: string = LOG_SOURCE_BASE + ':WebPartTemplate:';
 
@@ -26,49 +28,48 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
   const [items, setItems] = useState<TaskItem[]>([]);
 
 
-  const loadItems = (): void => {
+  const loadItems = async (): Promise<void> => {
     // debounce: https://www.freecodecamp.org/news/deboucing-in-react-autocomplete-example/
-    spService.tasks.gets(textFilter)
-      .then(items => setItems([...items]))
-      .catch(e => console.error(`${LOG_SOURCE} loadItems`, e));
-  };
-
-  const onLoadItems = async (): Promise<void> => {
-    return loadItems();
-  };
-
-  const onCreate = async (): Promise<void> => {
     try {
-      const str = (new Date()).toDateString();
-      const item: TaskItem = {
-        id: 0,
-        title: "TEST New - " + str,
-        isCompleted: false,
-        projectName: "Project " + str
-      };
-
-      const newitem = await spService.tasks.add(item);
-      console.debug(`${LOG_SOURCE} Item addded id: ${newitem.id}`);
-      loadItems();
-    } catch (error) {
-      console.error(`${LOG_SOURCE} onCreate`, error);
+      const items = await spService.tasks.gets(textFilter);
+      setItems([...items])
+    } catch (e) {
+      console.error(`${LOG_SOURCE} loadItems`, e);
     }
   };
 
-  const barItems: ICommandBarItemProps[] = [
-    {
-      key: 'load',
-      text: 'Load Items',
-      iconProps: { iconName: 'Refresh' },
-      onClick: (ev?: React.MouseEvent<HTMLElement, MouseEvent> | React.KeyboardEvent<HTMLElement> | undefined) => void onLoadItems()
-    },
-    {
-      key: 'new',
-      text: 'New item',
-      iconProps: { iconName: 'NewFolder' },
-      onClick: () => void onCreate()
-    },
-  ];
+  const createTaskItem = async (): Promise<void> => {
+    const str = (new Date()).toDateString();
+    const item: TaskItem = {
+      id: 0,
+      title: "TEST New - " + str,
+      isCompleted: false,
+      projectName: "Project " + str
+    };
+
+    const newitem = await spService.tasks.add(item);
+    console.debug(`${LOG_SOURCE} Item addded id: ${newitem.id}`);
+  };
+
+  const onCommandTaskBar = async (event: TaskCommandBarEvents): Promise<void> => {
+    console.debug(`${LOG_SOURCE} onCommandTaskBar`, event);
+    try {
+      switch (event) {
+        case 'new':
+          await createTaskItem();
+          break;       
+        case 'refresh':
+          break; 
+        default:
+          console.warn(`${LOG_SOURCE} onCommandTaskList`, `Event ${event} not supported.`);
+          return;
+      }
+      await loadItems(); 
+    } catch (error) {
+      console.error(`${LOG_SOURCE} onCommandTaskBar`, error);
+    }
+
+  }
 
   // Event handler TaskListView
   const onUpdatingTaskList = async (event: TaskListViewEvents, item: TaskItem): Promise<void> => {
@@ -89,7 +90,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
           console.warn(`${LOG_SOURCE} onUpdatingTaskList`, `Event ${event} not supported.`);
           return;
       }
-      loadItems();
+      await loadItems();
     } catch (e) {
       console.error(`${LOG_SOURCE} onUpdatingTaskList`, e);
     }
@@ -104,7 +105,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
   //componentDidUpdate
   useEffect(() => {
     console.debug(`${LOG_SOURCE} componentDidUpdate called.`);
-    loadItems();
+    void loadItems()
   }, [textFilter]);
 
   //componentWillUnmount
@@ -123,27 +124,12 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
         <div>Web part property value: <strong>{escape(description)}</strong></div>
       </div>
       <div>
-        <div>
-          <CommandBar
-            items={barItems}
-            ariaLabel="Items actions"
-            primaryGroupAriaLabel="Items actions"
-          />
-        </div>
-        <div>
-          <Stack>
-            <TextField label="Search" value={textFilter} onChange={(_, newValue?: string) => setTextFilter(newValue ?? '')} />
+        <TaskCommandBar onCommand={onCommandTaskBar} />
+        <Stack>
+          <TextField label="Search" value={textFilter} onChange={(_, newValue?: string) => setTextFilter(newValue ?? '')} />
+          <p>Filter text: {stringIsNullOrEmpty(textFilter) ? '-' : textFilter}</p>
           </Stack>
-          <p>Filter text: [{textFilter}]</p>
-        </div>
-        {items.length === 0 &&
-          <MessageBar delayedRender={false} messageBarType={MessageBarType.error}>
-            No items found.
-          </MessageBar>
-        }
-        <div>
-          <TaskListView items={items} onUpdating={onUpdatingTaskList} />
-        </div>
+        <TaskListView items={items} onUpdating={onUpdatingTaskList} />
       </div>
     </section>
   );

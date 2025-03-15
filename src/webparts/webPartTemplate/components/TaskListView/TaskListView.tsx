@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { TaskItem } from '../../../../dto/TaskItem';
 import { ListView, IViewField, SelectionMode } from "@pnp/spfx-controls-react/lib/ListView";
-import { IconButton, IIconProps } from '@fluentui/react';
+import { IconButton, IIconProps, MessageBar, MessageBarType } from '@fluentui/react';
 import ShowFlag from '../ShowFlag/ShowFlag';
 import ShowProject from '../ShowProject/ShowProject';
 import ShowDate from '../ShowDate/ShowDate';
@@ -77,15 +77,22 @@ const TaskListView: React.FC<TaskListViewProps> = (props) => {
     ];
 
     return (
-        <ListView
-            items={items}
-            viewFields={viewFields}
-            iconFieldName="FileRef"
-            compact={true}
-            selectionMode={SelectionMode.none}
-            selection={getSelection}
-            stickyHeader={true}
-        />
+        <>
+            {items.length === 0 &&
+                <MessageBar delayedRender={false} messageBarType={MessageBarType.error}>
+                    No items found.
+                </MessageBar>
+            }
+            <ListView
+                items={items}
+                viewFields={viewFields}
+                iconFieldName="FileRef"
+                compact={true}
+                selectionMode={SelectionMode.none}
+                selection={getSelection}
+                stickyHeader={true}
+            />
+        </>
     );
 };
 
