@@ -9,6 +9,7 @@ import { SOLUTION_NAME } from "../../constants";
 const LOG_SOURCE: string = SOLUTION_NAME + ':SPDataItems:';
 
 export class SPDataItems extends SPDataBase {
+
     /**
      * Metodo per recuperare tutti gli item di una lista TODO verificare con lista di grandi dimensioni
      * questo metodo restituisce solo 100 item
@@ -21,7 +22,7 @@ export class SPDataItems extends SPDataBase {
         console.debug(`${LOG_SOURCE} getItems() '${listName}'`);
 
         // prepare filter
-        const dataFilter = this.getListByTitle(listName)
+        const dataFilter = this.getSPListByTitle(listName)
             .items
             .top(top)
             //.filter(`startswith(Title,'${text ?? ''}')`)
@@ -51,7 +52,7 @@ export class SPDataItems extends SPDataBase {
      * @returns 
      */
     public async getItem(listName: string, itemId: number): Promise<IItem> {
-        return await this.getListByTitle(listName)
+        return await this.getSPListByTitle(listName)
             .items
             .select()
             .getById(itemId)
@@ -65,7 +66,7 @@ export class SPDataItems extends SPDataBase {
      * @param data serie di dati nomeCampo/valore
      */
     public async updateItem(listName: string, id: number, data: Record<string, unknown>): Promise<void> {
-        await this.getListByTitle(listName)
+        await this.getSPListByTitle(listName)
             .items
             .getById(id)
             .update(data);
@@ -78,7 +79,7 @@ export class SPDataItems extends SPDataBase {
      * @returns 
      */
     public async addItem(listName: string, data: Record<string, unknown>): Promise<IItem> {
-        return await this.getListByTitle(listName)
+        return await this.getSPListByTitle(listName)
             .items
             .add(data);
     }
@@ -89,7 +90,7 @@ export class SPDataItems extends SPDataBase {
      * @param id id dell'item
      */
     public async deleteItem(listName: string, id: number): Promise<void> {
-        await this.getListByTitle(listName)
+        await this.getSPListByTitle(listName)
             .items
             .getById(id)
             .delete();

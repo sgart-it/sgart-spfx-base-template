@@ -42,7 +42,7 @@ export class SPDataTasksItems extends SPDataBase {
     constructor(serviceScope: ServiceScope, private listName: string) {
         super(serviceScope);
 
-        console.debug(`${LOG_SOURCE} listName '${this.listName}'`);
+        console.debug(`${LOG_SOURCE}constructor listName '${this.listName}'`);
     }
 
     /**
@@ -55,7 +55,7 @@ export class SPDataTasksItems extends SPDataBase {
         console.debug(`${LOG_SOURCE} gets filter '${text}'`);
 
         // prepare filter
-        const dataFilter = this.getListByTitle(this.listName)
+        const dataFilter = this.getSPListByTitle(this.listName)
             .items
             .top(5000)
             //.filter(`startswith(Title,'${text ?? ''}')`)
@@ -89,7 +89,7 @@ export class SPDataTasksItems extends SPDataBase {
     public async get(id: number): Promise<TaskItem> {
         console.debug(`${LOG_SOURCE} get ${id}`);
 
-        const spItem = await this.getListByTitle(this.listName)
+        const spItem = await this.getSPListByTitle(this.listName)
             .items
             .select(...FIELDS)
             .getById(id)
@@ -107,7 +107,7 @@ export class SPDataTasksItems extends SPDataBase {
         console.debug(`${LOG_SOURCE} add ${item.title}`);
 
         const data = mapFromTaskItem(item);
-        const newSpitem = await this.getListByTitle(this.listName)
+        const newSpitem = await this.getSPListByTitle(this.listName)
             .items
             .add(data);
 
@@ -122,7 +122,7 @@ export class SPDataTasksItems extends SPDataBase {
         console.debug(`${LOG_SOURCE} update ${item.id}`);
 
         const data = mapFromTaskItem(item);
-        await this.getListByTitle(this.listName)
+        await this.getSPListByTitle(this.listName)
             .items
             .getById(item.id)
             .update(data);
@@ -135,7 +135,7 @@ export class SPDataTasksItems extends SPDataBase {
     public async delete(id: number): Promise<void> {
         console.debug(`${LOG_SOURCE} delete ${id}`);
 
-        await this.getListByTitle(this.listName)
+        await this.getSPListByTitle(this.listName)
             .items
             .getById(id)
             .delete();

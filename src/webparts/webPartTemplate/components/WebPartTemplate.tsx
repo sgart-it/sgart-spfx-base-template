@@ -80,7 +80,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
     try {
       switch (event) {
         case 'edit':
-          item.projectName = item.projectName + " " + (new Date).toDateString();
+          item.projectName = "UPD " + (new Date).toDateString();
           await spService.tasks.update(item);
           await loadItems();
           break;

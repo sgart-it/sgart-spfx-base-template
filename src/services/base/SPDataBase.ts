@@ -2,25 +2,47 @@ import { ServiceScope } from "@microsoft/sp-core-library";
 import { PageContext } from "@microsoft/sp-page-context";
 import { graphfi, GraphFI, SPFx as gSPFx } from "@pnp/graph";
 import { spfi, SPFI, SPFx as spSPFx } from "@pnp/sp";
-import { AadHttpClientFactory, AadTokenProviderFactory, HttpClient } from "@microsoft/sp-http";
+import { AadHttpClientFactory, AadTokenProviderFactory, HttpClient, SPHttpClient } from "@microsoft/sp-http";
 import { IList } from "@pnp/sp/lists";
 import { objectDefinedNotNull, stringIsNullOrEmpty } from "@pnp/core";
 import { SOLUTION_NAME } from "../../constants";
+
 
 const LOG_SOURCE: string = SOLUTION_NAME + ':SPDataBase:';
 /*
 Classe base per iniziallizzare PnP/PnPjs
 */
 export abstract class SPDataBase {
-    
-    private _serviceScope: ServiceScope
+
+    private readonly _serviceScope: ServiceScope
+    private _pageContext: PageContext;
     private _sp: SPFI;
     private _graph: GraphFI;
     private _httpClient: HttpClient;
+    private _spHttpClient: SPHttpClient;
     private _aadHttpClientFactory: AadHttpClientFactory;
 
     constructor(serviceScope: ServiceScope) {
         this._serviceScope = serviceScope;
+        console.debug(`${LOG_SOURCE}constructor`);
+
+        /*serviceScope.whenFinished(() => {
+            this._pageContext = serviceScope.consume(PageContext.serviceKey);
+
+            console.log(`${LOG_SOURCE} serviceScope.whenFinished() ${this._pageContext.web.absoluteUrl}`);
+        });*/
+    }
+
+    protected geTWebAbsoluteUrl(): string {
+        return this.getPageContext().web.absoluteUrl;
+    }
+
+    protected getPageContext(): PageContext {
+        if (this._pageContext === undefined) {
+            this._pageContext = this._serviceScope.consume(PageContext.serviceKey);
+            console.debug(`${LOG_SOURCE} getPageContext() ${objectDefinedNotNull(this._pageContext)}`);
+        }
+        return this._pageContext;
     }
 
     protected getSP(): SPFI {
@@ -42,6 +64,14 @@ export abstract class SPDataBase {
         return this._graph;
     }
 
+    protected getSPHttpClient(): SPHttpClient {
+        if (this._spHttpClient === undefined) {
+            this._spHttpClient = this._serviceScope.consume(SPHttpClient.serviceKey);
+            console.debug(`${LOG_SOURCE} _spHttpClient() ${objectDefinedNotNull(this._spHttpClient)}`);
+        }
+        return this._spHttpClient;
+    }
+
     protected getHttpClient(): HttpClient {
         if (this._httpClient === undefined) {
             this._httpClient = this._serviceScope.consume(HttpClient.serviceKey);
@@ -58,16 +88,18 @@ export abstract class SPDataBase {
         return this._aadHttpClientFactory;
     }
 
+
+
     /* FUNZIONI PER SHAREPOINT */
- 
-    protected getListByTitle(listName: string): IList {
+
+    protected getSPListByTitle(listName: string): IList {
         if (stringIsNullOrEmpty(listName))
             throw new Error("Listname is null");
 
         return this.getSP().web.lists.getByTitle(listName);
     }
 
-    protected getListById(listId: string): IList {
+    protected getSPListById(listId: string): IList {
         if (stringIsNullOrEmpty(listId))
             throw new Error("ListId is null");
 
