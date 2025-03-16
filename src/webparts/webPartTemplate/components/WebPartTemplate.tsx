@@ -1,15 +1,16 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
+import { stringIsNullOrEmpty } from "@pnp/core";
 import styles from './WebPartTemplate.module.scss';
 import type { IWebPartTemplateProps } from './IWebPartTemplateProps';
 import { escape } from '@microsoft/sp-lodash-subset';
 import { Stack, TextField } from '@fluentui/react';
 import { TaskItem } from '../../../dto/TaskItem';
 import { SOLUTION_NAME } from '../../../constants';
-import TaskListView, { TaskListViewEvents } from './TaskListView/TaskListView';
-import TaskCommandBar, { TaskCommandBarEvents } from './TaskCommandBar/TaskCommandBar';
-import { stringIsNullOrEmpty } from "@pnp/core";
 import DialogYesNo from './Common/DialogYesNo';
+
+import TaskDetailList, { TaskDetailListEvents } from './TaskListView/TaskDetailList';
+import TaskCommandBar, { TaskCommandBarEvents } from './TaskCommandBar/TaskCommandBar';
 
 const LOG_SOURCE: string = SOLUTION_NAME + ':WebPartTemplate:';
 
@@ -74,7 +75,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
   }
 
   // Event handler TaskListView
-  const onUpdatingTaskList = async (event: TaskListViewEvents, item: TaskItem): Promise<void> => {
+  const onUpdatingTaskList = async (event: TaskDetailListEvents, item: TaskItem): Promise<void> => {
     console.debug(`${LOG_SOURCE} onUpdatingTaskList`, event, item);
     try {
       switch (event) {
@@ -143,7 +144,7 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
           <TextField label="Search" value={textFilter} onChange={(_, newValue?: string) => setTextFilter(newValue ?? '')} />
           <p>Filter text: {stringIsNullOrEmpty(textFilter) ? '-' : textFilter}</p>
         </Stack>
-        <TaskListView items={items} onUpdating={onUpdatingTaskList} />
+        <TaskDetailList items={items} onUpdating={onUpdatingTaskList} />
       </div>
 
       {taskToDelete && <DialogYesNo message={`Delete item id ${taskToDelete.id} with title '${taskToDelete.title}'`} onResponde={onRespondeDeleteDialog} data={taskToDelete}/>}

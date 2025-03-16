@@ -8,7 +8,7 @@ import * as React from 'react';
 //const ShowProject: React.FC<{ id: number; text: string }> = ({ value, onChangeValue }) => {
 // React.FC da usare se si vogliono renderizzare i children {props.children} da preferire
 //const ShowProject = (props: { id: number; text: string }) => {
-const ShowProject = ({ id, text }: { id: number; text: string }) => {
+const ShowProject = ({ id, text }: { id: number; text: string }) : JSX.Element => {
 
     const link = `/project/${id}`;
 

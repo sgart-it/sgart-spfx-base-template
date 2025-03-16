@@ -5,5 +5,5 @@ export type TaskItem =  {
     projectName: string;
     isCompleted: boolean;
     modified?: Date;
-    modifiedStr?: string; /* stringa perche ListView n0n funziona con le date */
+    modifiedStr?: string; /* stringa solo per PNP ListView gestisce male gli oggetti date */
 }

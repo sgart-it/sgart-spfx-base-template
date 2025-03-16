@@ -6,19 +6,23 @@ import ShowFlag from '../Common/ShowFlag';
 import ShowProject from '../ShowProject/ShowProject';
 import ShowDate from '../Common/ShowDate';
 import { SOLUTION_NAME } from '../../../../constants';
+import { TaskDetailListEvents } from './TaskDetailList';
 
 const LOG_SOURCE: string = SOLUTION_NAME + ':TaskListView:';
 
 const deleteIcon: IIconProps = { iconName: 'Delete' };
 const editIcon: IIconProps = { iconName: 'Edit' };
 
-export type TaskListViewEvents = | "delete" | "edit" | "update";
-
 export type TaskListViewProps = {
     items: TaskItem[];
-    onUpdating(event: TaskListViewEvents, item: TaskItem): void;
+    onUpdating(event: TaskDetailListEvents, item: TaskItem): void;
 }
 
+/**
+ * PNP ListView => meglio usare DetailsList (https://developer.microsoft.com/en-us/fluentui#/controls/web/detailslist)
+ * @param props 
+ * @returns 
+ */
 const TaskListView: React.FC<TaskListViewProps> = (props) => {
     const { items } = props;
 
