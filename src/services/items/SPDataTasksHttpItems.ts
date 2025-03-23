@@ -12,13 +12,19 @@ const LOG_SOURCE: string = SOLUTION_NAME + ':SPDataTasksHttpItems:';
 
 const FIELDS = 'Id,Title,ProjectName,Completed,Modified';
 
-const mapFromTaskItem = (item: TaskItem): Record<string, unknown> => ({
+type SPTaskItem = {
+    Title: string;
+    ProjectName: string;
+    Completed: boolean;
+};
+
+const mapFromTaskItem = (item: TaskItem): SPTaskItem => ({
     Title: item.title,
     ProjectName: item.projectName,
     Completed: item.isCompleted ?? false
 });
 
-const mapToTaskItem = (data: unknown): TaskItem => {
+const mapToTaskItem = (data: SPTaskItem): TaskItem => {
     const { Id, Title, ProjectName, Completed, Modified } = data as { Id: number; Title: string; ProjectName: string, Completed?: boolean, Modified?: string | null };
 
     return {
@@ -45,21 +51,22 @@ export class SPDataTasksHttpItems extends SPDataBase {
         console.debug(`${LOG_SOURCE}constructor listName '${this.listName}'`);
     }
 
-    private getItemsUrl = (): string => `${this.geTWebAbsoluteUrl()}/_api/lists/getByTitle('${this.listName}')/items`;
+    private getItemsUrl = (): string => `${this.getWebAbsoluteUrl()}/_api/lists/getByTitle('${this.listName}')/items`;
 
-    private async executeQueryGetItems<T>(queryUrl: string): Promise<T> {
+    private executeQueryGet = async (queryUrl: string): Promise<unknown> => {
         const url = this.getItemsUrl() + queryUrl;
         try {
             const response: SPHttpClientResponse = await this.getSPHttpClient().get(url, SPHttpClient.configurations.v1);
             const data = await response.json();
-            return data.value as T
+            return data;
+            //return data.value as T
         } catch (err) {
             console.error(`${LOG_SOURCE}executeQueryGet ${url}`, err);
             throw err
         }
-    }
+    };
 
-    private async executeQueryAdd(data: unknown): Promise<unknown> {
+    private executeQueryAdd = async (data: SPTaskItem): Promise<SPTaskItem> => {
         const url = this.getItemsUrl();
         try {
             const opt: ISPHttpClientOptions = {
@@ -79,8 +86,8 @@ export class SPDataTasksHttpItems extends SPDataBase {
         }
     }
 
-    private async executeQueryUpdate(id: number, data: unknown): Promise<void> {
-        const url = this.getItemsUrl()+ `(${id})`;
+    private executeQueryUpdate = async (id: number, data: SPTaskItem): Promise<void> => {
+        const url = this.getItemsUrl() + `(${id})`;
         try {
             const opt: ISPHttpClientOptions = {
                 headers: {
@@ -100,8 +107,8 @@ export class SPDataTasksHttpItems extends SPDataBase {
         }
     }
 
-    private async executeQueryDelete(id: number): Promise<void> {
-        const url = this.getItemsUrl()+ `(${id})`;
+    private executeQueryDelete = async (id: number): Promise<void> => {
+        const url = this.getItemsUrl() + `(${id})`;
         try {
             const opt: ISPHttpClientOptions = {
                 headers: {
@@ -135,10 +142,10 @@ export class SPDataTasksHttpItems extends SPDataBase {
             + '&$orderby=Id asc';
 
         // execute query
-        const data = await this.executeQueryGetItems<TaskItem[]>(queryUrl);
+        const data = await this.executeQueryGet(queryUrl) as { value: SPTaskItem[] };
 
         // map to DTO
-        const items = data.map<TaskItem>(spItem => mapToTaskItem(spItem));
+        const items = data.value.map<TaskItem>(spItem => mapToTaskItem(spItem));
 
         console.debug(`${LOG_SOURCE}`, items);
 
@@ -157,8 +164,10 @@ export class SPDataTasksHttpItems extends SPDataBase {
         // prepare filter
         const queryUrl = `(${id})?&$select=${FIELDS}`;
 
+        console.debug(queryUrl);
+
         // execute query
-        const spItem = await this.executeQueryGetItems<TaskItem>(queryUrl);
+        const spItem = await this.executeQueryGet(queryUrl) as SPTaskItem;
 
         return mapToTaskItem(spItem);
     }
@@ -171,7 +180,7 @@ export class SPDataTasksHttpItems extends SPDataBase {
     public async add(item: TaskItem): Promise<TaskItem> {
         console.debug(`${LOG_SOURCE} add ${item.title}`);
 
-        const data = mapFromTaskItem(item);
+        const data: SPTaskItem = mapFromTaskItem(item);
 
         const newSpitem = await this.executeQueryAdd(data);
 

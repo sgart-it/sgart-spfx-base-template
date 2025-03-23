@@ -33,7 +33,7 @@ export abstract class SPDataBase {
         });*/
     }
 
-    protected geTWebAbsoluteUrl(): string {
+    protected getWebAbsoluteUrl(): string {
         return this.getPageContext().web.absoluteUrl;
     }
 

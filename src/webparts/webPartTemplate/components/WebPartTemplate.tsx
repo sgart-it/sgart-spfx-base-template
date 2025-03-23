@@ -120,7 +120,8 @@ const WebPartTemplate: React.FunctionComponent<IWebPartTemplateProps> = (props) 
   //componentDidUpdate
   useEffect(() => {
     console.debug(`${LOG_SOURCE} componentDidUpdate called.`);
-    void loadItems()
+    loadItems()
+      .catch(()=>undefined)
   }, [textFilter]);
 
   //componentWillUnmount
