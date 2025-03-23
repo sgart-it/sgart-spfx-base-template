@@ -10,6 +10,7 @@ import { SOLUTION_NAME } from "../../constants";
 const LOG_SOURCE: string = SOLUTION_NAME + ':SPDataTasksItems:';
 
 const FIELDS = ["Id", "Title", "ProjectName", "Completed", "Modified"];
+const FIELDS_STR = "Id,Title,ProjectName,Completed,Modified";
 
 const mapFromTaskItem = (item: TaskItem): Record<string, unknown> => ({
     Title: item.title,
@@ -59,13 +60,14 @@ export class SPDataTasksItems extends SPDataBase {
             .items
             .top(5000)
             //.filter(`startswith(Title,'${text ?? ''}')`)
-            .select(...FIELDS)
+            //.select(...FIELDS)
+            .select(FIELDS_STR)
             //select("Title", "FileRef", "FieldValuesAsText/MetaInfo")
             //.expand("FieldValuesAsText")
             .orderBy("Id", true);
         if (stringIsNullOrEmpty(text) === false) {
             //dataFilter.filter(f => f.text("Title").startsWith(text ?? ''));
-            // funziona solo con liste con meno di 5000 items
+            // contains funziona solo con liste con meno di 5000 items
             dataFilter.filter(f => f.text("Title").contains(text ?? ''));
         }
 
